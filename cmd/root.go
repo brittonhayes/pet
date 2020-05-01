@@ -40,8 +40,8 @@ var RootCmd = &cobra.Command{
 	Use:           "pet",
 	Short:         "Simple command-line snippet manager.",
 	Long:          `pet - Simple command-line snippet manager.`,
-	SilenceErrors: false,
-	SilenceUsage:  false,
+	SilenceErrors: true,
+	SilenceUsage:  true,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
