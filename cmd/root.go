@@ -30,8 +30,9 @@ import (
 )
 
 var (
-	configFile string
-	version    = "dev"
+	configFile  string
+	snippetFile string
+	version     = "dev"
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -39,8 +40,8 @@ var RootCmd = &cobra.Command{
 	Use:           "pet",
 	Short:         "Simple command-line snippet manager.",
 	Long:          `pet - Simple command-line snippet manager.`,
-	SilenceErrors: true,
-	SilenceUsage:  true,
+	SilenceErrors: false,
+	SilenceUsage:  false,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -56,6 +57,7 @@ func init() {
 	RootCmd.AddCommand(versionCmd)
 
 	RootCmd.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is $HOME/.config/pet/config.toml)")
+	RootCmd.PersistentFlags().StringVar(&snippetFile, "snippet", "", "snippet file (default is $HOME/.config/pet/snippet.toml)")
 	RootCmd.PersistentFlags().BoolVarP(&config.Flag.Debug, "debug", "", false, "debug mode")
 }
 
@@ -79,7 +81,16 @@ func initConfig() {
 		configFile = filepath.Join(dir, "config.toml")
 	}
 
-	if err := config.Conf.Load(configFile); err != nil {
+	if snippetFile == "" {
+		dir, err := config.GetDefaultConfigDir()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v", err)
+			os.Exit(1)
+		}
+		snippetFile = filepath.Join(dir, "snippet.toml")
+	}
+
+	if err := config.Conf.Load(configFile, snippetFile); err != nil {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(1)
 	}

@@ -65,14 +65,18 @@ type FlagConfig struct {
 }
 
 // Load loads a config toml
-func (cfg *Config) Load(file string) error {
+func (cfg *Config) Load(file string, customSnippet string) error {
 	_, err := os.Stat(file)
 	if err == nil {
 		_, err := toml.DecodeFile(file, cfg)
 		if err != nil {
 			return err
 		}
-		cfg.General.SnippetFile = expandPath(cfg.General.SnippetFile)
+
+		if customSnippet != "" {
+			cfg.General.SnippetFile = expandPath(customSnippet)
+		}
+
 		return nil
 	}
 
@@ -84,11 +88,6 @@ func (cfg *Config) Load(file string) error {
 		return err
 	}
 
-	dir, err := GetDefaultConfigDir()
-	if err != nil {
-		return errors.Wrap(err, "Failed to get the default config directory")
-	}
-	cfg.General.SnippetFile = filepath.Join(dir, "snippet.toml")
 	_, err = os.Create(cfg.General.SnippetFile)
 	if err != nil {
 		return errors.Wrap(err, "Failed to create a config file")
